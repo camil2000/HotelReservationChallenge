@@ -197,3 +197,30 @@ class Hotel:
         for number, room in self.rooms.items():
             current = check_in
             available = True
+
+            while current < check_out:
+                if room.availability.get(current) is not None:
+                    available = False
+                    break
+                current += timedelta(days=1)
+
+            if available:
+                available_rooms.append(number)
+
+            return available_rooms
+
+    def cancel_reservation(self, reservation_id: str):
+        if reservation_id not in self.reservations:
+            reservation_not_found_error()
+
+        self.reservations.pop(reservation_id)
+
+        for room in self.rooms.values():
+            if reservation_id in room.availability.values():
+                room.release(reservation_id)
+                break
+
+    def list_reservations(self):
+        for r in self.reservations.values():
+            print(r)
+
