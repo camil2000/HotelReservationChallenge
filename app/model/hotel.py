@@ -37,3 +37,9 @@ class Guest:
 
     def __str__(self):
         return f"Guest {self.name} ({self.email}) of type {self.type_}"
+
+@dataclass
+class HotelService:
+    name: str
+    price: float
+    description: str = ""
