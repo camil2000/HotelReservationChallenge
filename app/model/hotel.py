@@ -67,3 +67,26 @@ class Reservation:
 
     def add_service(self, service: HotelService):
         self.services.append(service)
+
+    def remove_service(self, index: int):
+        if 0 <= index < len(self.services):
+            self.services.pop(index)
+        else:
+            service_not_found_error()
+
+    def total_services_cost(self):
+        return sum(s.price for s in self.services)
+
+    def __len__(self):
+        return (self.check_out - self.check_in).days
+
+    def __str__(self):
+        return (
+            f"\nID: {self.id}\n"
+            f"Guest: {self.guest_name}\n"
+            f"Description: {self.description}\n"
+            f"Dates: {self.check_in} - {self.check_out}\n"
+            f"Nights: {len(self)}\n"
+            f"Guests: {len(self.guests)}\n"
+            f"Services Cost: ${self.total_services_cost()}\n"
+        )
