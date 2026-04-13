@@ -140,3 +140,32 @@ class Room:
             else:
                 self.availability[current] = reservation_id
             current += timedelta(days=1)
+
+class Hotel:
+    def __init__(self):
+        self.rooms = {}
+        self.reservations = {}
+
+    def add_room(self, number, type_, price_per_night):
+        if number in self.rooms:
+            room_already_exists_error()
+
+        self.rooms[number] = Room(number, type_, price_per_night)
+
+    def make_reservation(self, guest_name, description, room_number, check_in, check_out):
+        today = datetime.now().date()
+
+        if check_in < today:
+            date_lower_than_today_error()
+
+        if room_number not in self.rooms:
+            room_not_found_error()
+
+        reservation = Reservation(guest_name, description, check_in, check_out)
+
+        room = self.rooms[room_number]
+        room.book(reservation.id, check_in, check_out)
+
+        self.reservations[reservation.id] = reservation
+
+        return reservation.id
