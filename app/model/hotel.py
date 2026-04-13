@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
-from typing import ClassVar  # Importante para definir variables de clase puras
-# Importación de utilidades según el requerimiento del ejercicio
+from typing import ClassVar
 from app.services.util import (
     generate_unique_id, guest_not_found_error, room_not_available_error,
     reservation_not_found_error, room_already_exists_error,
@@ -16,6 +15,8 @@ class HotelService:
     def __str__(self) -> str:
         return f"{self.name} (${self.price})"
 
+
+@dataclass
 class Guest:
 
     REGULAR: ClassVar[str] = "regular"
@@ -37,19 +38,24 @@ class Reservation:
     guests: list[Guest] = field(default_factory=list, init=False)
     services: list[HotelService] = field(default_factory=list, init=False)
     id: str = field(default_factory=generate_unique_id)
+
     def add_guest(self, name: str, email: str, type_: str = "regular"):
         nuevo_huesped = Guest(name, email, type_)
         self.guests.append(nuevo_huesped)
+
     def delete_guest(self, guest_index: int):
         if 0 <= guest_index < len(self.guests):
             self.guests.pop(guest_index)
         else:
             guest_not_found_error()
+
     def add_service(self, service: HotelService):
 
         self.services.append(service)
+
     def __len__(self) -> int:
         return (self.check_out - self.check_in).days
+
     def __str__(self) -> str:
         return (f"ID: {self.id}\n"
                 f"Guest: {self.guest_name}\n"
@@ -63,14 +69,17 @@ class Room:
         self.price_per_night = price_per_night
         self.availability: dict[date, str | None] = {}
         self._init_availability()
+
     def _init_availability(self):
         hoy = datetime.now().date()
         for i in range(365):
             fecha = hoy + timedelta(days=i)
             self.availability[fecha] = None
+
     def book(self, reservation_id: str, check_in: date, check_out: date):
 
         temp_date = check_in
+
         while temp_date < check_out:
             if self.availability.get(temp_date) is not None:
                 room_not_available_error()
@@ -78,23 +87,27 @@ class Room:
             temp_date += timedelta(days=1)
 
         temp_date = check_in
+
         while temp_date < check_out:
             self.availability[temp_date] = reservation_id
             temp_date += timedelta(days=1)
 
     def release(self, reservation_id: str):
         released = False
+
         for d, saved_id in self.availability.items():
             if saved_id == reservation_id:
                 self.availability[d] = None
                 released = True
         if not released:
             reservation_not_found_error()
+
     def update_booking(self, reservation_id: str, check_in: date, check_out: date):
         for d in self.availability:
             if self.availability[d] == reservation_id:
                 self.availability[d] = None
         current = check_in
+
         while current < check_out:
             if self.availability.get(current) is not None:
                 room_not_available_error()
@@ -106,11 +119,13 @@ class Hotel:
     def __init__(self):
         self.rooms: dict[int, Room] = {}
         self.reservations: dict[str, Reservation] = {}
+
     def add_room(self, number: int, type_: str, price_per_night: float):
         if number in self.rooms:
             room_already_exists_error()
         else:
             self.rooms[number] = Room(number, type_, price_per_night)
+
     def make_reservation(self, guest_name: str, description: str,
                          room_number: int, check_in: date, check_out: date) -> str:
         if check_in < datetime.now().date():
@@ -128,8 +143,10 @@ class Hotel:
             reservation_not_found_error()
         else:
             reserva.add_guest(name, email, type_)
+
     def find_available_rooms(self, check_in: date, check_out: date) -> list[int]:
         disponibles = []
+
         for num, room in self.rooms.items():
             libre = True
             curr = check_in
@@ -156,13 +173,12 @@ class Hotel:
         if not reservation:
             reservation_not_found_error()
         current_room_number = None
-
         for number, room in self.rooms.items():
             if reservation_id in room.availability.values():
                 current_room_number = number
                 break
-
         is_new_room = False
+
         if current_room_number != room_number:
             self.cancel_reservation(reservation_id)
             reservation = Reservation(guest_name=guest_name, description=description,
@@ -185,7 +201,6 @@ class Hotel:
         if reservation_id not in self.reservations:
             reservation_not_found_error()
         self.reservations.pop(reservation_id)
-
         for room in self.rooms.values():
             if reservation_id in room.availability.values():
                 room.release(reservation_id)
@@ -193,7 +208,6 @@ class Hotel:
 
     def find_reservations(self, start_date: date, end_date: date) -> dict[date, list[Reservation]]:
         reservations: dict[date, list[Reservation]] = {}
-
         for reservation in self.reservations.values():
             if start_date <= reservation.check_in <= end_date:
                 if reservation.check_in not in reservations:
