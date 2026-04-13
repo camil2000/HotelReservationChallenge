@@ -169,3 +169,31 @@ class Hotel:
         self.reservations[reservation.id] = reservation
 
         return reservation.id
+
+    def add_guest(self, reservation_id, name, email, type_):
+        reservation = self.reservations.get(reservation_id)
+        if not reservation:
+            reservation_not_found_error()
+
+        reservation.add_guest(name, email, type_)
+
+    def delete_guest(self, reservation_id, index):
+        reservation = self.reservations.get(reservation_id)
+        if not reservation:
+            reservation_not_found_error()
+
+        reservation.delete_guest(index)
+
+    def add_service_to_reservation(self, reservation_id, service):
+        reservation = self.reservations.get(reservation_id)
+        if not reservation:
+            reservation_not_found_error()
+
+        reservation.add_service(service)
+
+    def find_available_rooms(self, check_in, check_out):
+        available_rooms = []
+
+        for number, room in self.rooms.items():
+            current = check_in
+            available = True
