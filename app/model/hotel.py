@@ -43,3 +43,27 @@ class HotelService:
     name: str
     price: float
     description: str = ""
+
+@dataclass
+class Reservation:
+    guest_name: str
+    description: str
+    check_in: date
+    check_out: date
+
+    guests: list = field(default_factory=list)
+    services: list = field(default_factory=list)
+    id: str = field(default_factory=generate_unique_id)
+
+    def add_guest(self, name, email, type_):
+        guest = Guest(name, email, type_)
+        self.guests.append(guest)
+
+    def delete_guest(self, guest_index: int):
+        if 0 <= guest_index < len(self.guests):
+            self.guests.pop(guest_index)
+        else:
+            guest_not_found_error()
+
+    def add_service(self, service: HotelService):
+        self.services.append(service)
