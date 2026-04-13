@@ -1,19 +1,39 @@
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta
-from typing import ClassVar
+from datetime import datetime, timedelta, date
+import uuid
 
-from app.services.util import (generate_unique_id, date_lower_than_today_error,
-    reservation_not_found_error, guest_not_found_error, room_not_available_error,
-    room_not_found_error, room_already_exists_error)
+def generate_unique_id():
+    return str(uuid.uuid4())
 
+def guest_not_found_error():
+    raise Exception("Guest not found")
 
-# TODO: Implement Guest class here
+def room_not_available_error():
+    raise Exception("Room not available for selected dates")
 
+def reservation_not_found_error():
+    raise Exception("Reservation not found")
 
-# TODO: Implement Reservation class here
+def room_already_exists_error():
+    raise Exception("Room already exists")
 
+def room_not_found_error():
+    raise Exception("Room not found")
 
-# TODO: Implement Room class here
+def date_lower_than_today_error():
+    raise Exception("Check-in date cannot be earlier than today")
 
+def service_not_found_error():
+    raise Exception("Service not found")
 
-# TODO: Implement Hotel class here
+@dataclass
+class Guest:
+    REGULAR = "regular"
+    VIP = "vip"
+
+    name: str
+    email: str
+    type_: str = REGULAR
+
+    def __str__(self):
+        return f"Guest {self.name} ({self.email}) of type {self.type_}"
